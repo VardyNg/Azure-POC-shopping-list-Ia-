@@ -1,6 +1,67 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
-  "resources": []
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastasia"
+    },
+    "storageAccount_name": {
+      "type": "string",
+      "defaultValue": "pocshoppinglistsc"
+    },
+    "storageAccount_sku_name": {
+      "type": "string",
+      "defaultValue": "Standard_LRS"
+    },
+    "storageAccount_access_tier": {
+      "type": "string",
+      "defaultValue": "Cool"
+    },
+    "storageAccount_kind": {
+      "type": "string",
+      "defaultValue": "StorageV2"
+    },
+    "storageContainer_name": {
+      "type": "string",
+      "defaultValue": "storagecontainerfromarm"
+    }
+  },
+  "resources": [
+    // Storage Account
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "[parameters('storageAccount_sku_name')]"
+      },
+      "kind": "[parameters('storageAccount_kind')]",
+      "name": "[parameters('storageAccount_name')]",
+      "apiVersion": "2017-10-01",
+      "location": "[parameters('location')]",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": false,
+        "encryption": {
+          "services": {
+            "file": {
+              "enabled": true
+            },
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "[parameters('storageAccount_access_tier')]"
+      },
+      "dependsOn": []
+    }
+  ]
 }
