@@ -25,7 +25,94 @@
     "storageContainer_name": {
       "type": "string",
       "defaultValue": "storagecontainerfromarm"
+    },
+    "database_account_name": {
+      "type": "string",
+      "defaultValue": "pocshoppinglistdb"
+    },
+    "maxStalenessPrefix": {
+      "type": "int",
+      "defaultValue": 100000,
+      "maxValue": 2147483647,
+      "minValue": 10,
+      "metadata": {
+        "description": "Max stale requests. Required for BoundedStaleness. Valid ranges, Single Region: 10 to 2147483647. Multi Region: 100000 to 2147483647."
+      }
+    },
+    "maxIntervalInSeconds": {
+      "type": "int",
+      "defaultValue": 300,
+      "maxValue": 86400,
+      "minValue": 5,
+      "metadata": {
+        "description": "Max lag time (minutes). Required for BoundedStaleness. Valid ranges, Single Region: 5 to 84600. Multi Region: 300 to 86400."
+      }
+    },
+    "defaultConsistencyLevel": {
+      "type": "string",
+      "defaultValue": "Session",
+      "allowedValues": [
+        "Eventual",
+        "ConsistentPrefix",
+        "Session",
+        "BoundedStaleness",
+        "Strong"
+      ]
+    },
+    "primaryRegion": {
+      "type": "string",
+      "defaultValue": "eastasia",
+      "metadata": {
+        "description": "The primary region for the Cosmos DB account."
+      }
+    },
+    "secondaryRegion": {
+      "type": "string",
+      "defaultValue": "southeastasia",
+      "metadata": {
+        "description": "The secondary region for the Cosmos DB account."
+      }
+    },
+    "systemManagedFailover": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable system managed failover for regions"
+      }
     }
+  },
+  "variables": {
+    "consistencyPolicy": {
+      "Eventual": {
+        "defaultConsistencyLevel": "Eventual"
+      },
+      "ConsistentPrefix": {
+        "defaultConsistencyLevel": "ConsistentPrefix"
+      },
+      "Session": {
+        "defaultConsistencyLevel": "Session"
+      },
+      "BoundedStaleness": {
+        "defaultConsistencyLevel": "BoundedStaleness",
+        "maxStalenessPrefix": "[parameters('maxStalenessPrefix')]",
+        "maxIntervalInSeconds": "[parameters('maxIntervalInSeconds')]"
+      },
+      "Strong": {
+        "defaultConsistencyLevel": "Strong"
+      }
+    },
+    "locations": [
+      {
+        "locationName": "[parameters('primaryRegion')]",
+        "failoverPriority": 0,
+        "isZoneRedundant": false
+      },
+      {
+        "locationName": "[parameters('secondaryRegion')]",
+        "failoverPriority": 1,
+        "isZoneRedundant": false
+      }
+    ]
   },
   "resources": [
     // Storage Account
@@ -62,6 +149,19 @@
         "accessTier": "[parameters('storageAccount_access_tier')]"
       },
       "dependsOn": []
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2022-05-15",
+      "name": "[toLower(parameters('database_account_name'))]",
+      "kind": "GlobalDocumentDB",
+      "location": "[parameters('location')]",
+      "properties": {
+        "consistencyPolicy": "[variables('consistencyPolicy')[parameters('defaultConsistencyLevel')]]",
+        "locations": "[variables('locations')]",
+        "databaseAccountOfferType": "Standard",
+        "enableAutomaticFailover": "[parameters('systemManagedFailover')]"
+      }
     }
   ]
 }
