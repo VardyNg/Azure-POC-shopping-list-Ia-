@@ -150,6 +150,7 @@
       },
       "dependsOn": []
     },
+    // Database account
     {
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2022-05-15",
