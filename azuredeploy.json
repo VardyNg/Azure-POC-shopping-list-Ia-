@@ -189,9 +189,9 @@
         "databaseAccountOfferType": "Standard",
         "enableAutomaticFailover": "[parameters('systemManagedFailover')]",
         "capabilities": [
-            {
-                "name": "EnableServerless"
-            }
+          {
+            "name": "EnableServerless"
+          }
         ]
       }
     },
