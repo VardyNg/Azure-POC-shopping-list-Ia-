@@ -187,7 +187,12 @@
         "consistencyPolicy": "[variables('consistencyPolicy')[parameters('defaultConsistencyLevel')]]",
         "locations": "[variables('locations')]",
         "databaseAccountOfferType": "Standard",
-        "enableAutomaticFailover": "[parameters('systemManagedFailover')]"
+        "enableAutomaticFailover": "[parameters('systemManagedFailover')]",
+        "capabilities": [
+            {
+                "name": "EnableServerless"
+            }
+        ]
       }
     },
     // Database 
