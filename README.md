@@ -14,3 +14,10 @@ az group create \
   --resource-group azure-poc-shopping-list \
   --template-file azuredeploy.json
 ```
+
+### Delete resource group
+```sh
+ az deployment group delete \
+  --resource-group azure-poc-shopping-list \
+  --name azuredeploy
+```

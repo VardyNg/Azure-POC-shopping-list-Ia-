@@ -28,7 +28,10 @@
     },
     "database_account_name": {
       "type": "string",
-      "defaultValue": "pocshoppinglistdb"
+      "defaultValue": "pocshoppinglistdb",
+      "metadata": {
+        "description": "The name of the Cosmos DB account."
+      }
     },
     "maxStalenessPrefix": {
       "type": "int",
@@ -82,9 +85,25 @@
     },
     "databaseName": {
       "type": "string",
-      "defaultValue": "ToDoList",
+      "defaultValue": "ShoppingList",
       "metadata": {
         "description": "The name for the database"
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "defaultValue": "ShoppingListContainer",
+      "metadata": {
+        "description": "The name for the container"
+      }
+    },
+    "autoscaleMaxThroughput": {
+      "type": "int",
+      "defaultValue": 1000,
+      "maxValue": 1000000,
+      "minValue": 1000,
+      "metadata": {
+        "description": "Maximum autoscale throughput for the container"
       }
     }
   },
@@ -168,10 +187,15 @@
         "consistencyPolicy": "[variables('consistencyPolicy')[parameters('defaultConsistencyLevel')]]",
         "locations": "[variables('locations')]",
         "databaseAccountOfferType": "Standard",
-        "enableAutomaticFailover": "[parameters('systemManagedFailover')]"
+        "enableAutomaticFailover": "[parameters('systemManagedFailover')]",
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ]
       }
     },
-    // SQL Database
+    // Database 
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
       "apiVersion": "2022-05-15",
@@ -183,6 +207,79 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', toLower(parameters('database_account_name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2022-05-15",
+      "name": "[format('{0}/{1}/{2}', toLower(parameters('database_account_name')), parameters('databaseName'), parameters('containerName'))]",
+      "properties": {
+        "resource": {
+          "id": "[parameters('containerName')]",
+          "partitionKey": {
+            "paths": [
+              "/myPartitionKey"
+            ],
+            "kind": "Hash"
+          },
+          "indexingPolicy": {
+            "indexingMode": "consistent",
+            "includedPaths": [
+              {
+                "path": "/*"
+              }
+            ],
+            "excludedPaths": [
+              {
+                "path": "/myPathToNotIndex/*"
+              },
+              {
+                "path": "/_etag/?"
+              }
+            ],
+            "compositeIndexes": [
+              [
+                {
+                  "path": "/name",
+                  "order": "ascending"
+                },
+                {
+                  "path": "/age",
+                  "order": "descending"
+                }
+              ]
+            ],
+            "spatialIndexes": [
+              {
+                "path": "/path/to/geojson/property/?",
+                "types": [
+                  "Point",
+                  "Polygon",
+                  "MultiPolygon",
+                  "LineString"
+                ]
+              }
+            ]
+          },
+          "defaultTtl": 86400,
+          "uniqueKeyPolicy": {
+            "uniqueKeys": [
+              {
+                "paths": [
+                  "/phoneNumber"
+                ]
+              }
+            ]
+          }
+        },
+        "options": {
+          "autoscaleSettings": {
+            "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', toLower(parameters('database_account_name')), parameters('databaseName'))]"
       ]
     }
   ]
