@@ -1,4 +1,4 @@
-# Azure-POC-shopping-list-Ia-
+# Azure-POC-shopping-list-IaC
 A tiny poc project to get some Azure hands on experience - IaC
 
 ### Create a resource group 

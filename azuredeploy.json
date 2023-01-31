@@ -132,11 +132,6 @@
         "locationName": "[parameters('primaryRegion')]",
         "failoverPriority": 0,
         "isZoneRedundant": false
-      },
-      {
-        "locationName": "[parameters('secondaryRegion')]",
-        "failoverPriority": 1,
-        "isZoneRedundant": false
       }
     ]
   },
@@ -271,12 +266,13 @@
               }
             ]
           }
-        },
-        "options": {
-          "autoscaleSettings": {
-            "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
-          }
         }
+        //,
+        // "options": {
+        //   "autoscaleSettings": {
+        //     "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
+        //   }
+        // }
       },
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', toLower(parameters('database_account_name')), parameters('databaseName'))]"
