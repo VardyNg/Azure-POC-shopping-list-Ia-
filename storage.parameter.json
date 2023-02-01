@@ -49,6 +49,9 @@
     },
     "autoscaleMaxThroughput": {
       "value": 1000
+    },
+    "appName": {
+      "value": "pocshoppinglist"
     }
   }
 }

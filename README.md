@@ -13,7 +13,7 @@ az group create \
 az deployment group create \
   --resource-group azure-poc-shopping-list \
   --template-file azuredeploy.json \
-  --parameter @storage.parameter.json
+  --parameter @storage.parameter.json @parameter.json @apigw.parameter.json @staticwebsite.parameter.json
 ```
 
 ### Delete resource group

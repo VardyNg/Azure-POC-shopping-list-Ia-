@@ -89,7 +89,72 @@
       "metadata": {
         "description": "Maximum autoscale throughput for the container"
       }
-    }
+    },
+    "appName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the app service"
+      }
+    },
+    // API GW
+    "apimName": {
+        "type": "string"
+    },
+    "tier": {
+        "type": "string"
+    },
+    "capacity": {
+        "type": "string"
+    },
+    "adminEmail": {
+        "type": "string"
+    },
+    "organizationName": {
+        "type": "string"
+    },
+    "tagsByResource": {
+        "type": "object"
+    },
+    "customProperties": {
+        "type": "object"
+    },
+    "identity": {
+        "type": "object"
+    },
+    // Static Website
+      "name": {
+        "type": "string"
+      },
+      "sku": {
+        "type": "string"
+      },
+      "skucode": {
+        "type": "string"
+      },
+      "repositoryUrl": {
+        "type": "string"
+      },
+      "branch": {
+        "type": "string"
+      },
+      "repositoryToken": {
+        "type": "securestring"
+      },
+      "appLocation": {
+        "type": "string"
+      },
+      "apiLocation": {
+        "type": "string"
+      },
+      "appArtifactLocation": {
+        "type": "string"
+      },
+      "resourceTags": {
+        "type": "object"
+      },
+      "appSettings": {
+        "type": "object"
+      }
   },
   "variables": {
     "consistencyPolicy": {
@@ -117,7 +182,8 @@
         "failoverPriority": 0,
         "isZoneRedundant": false
       }
-    ]
+    ],
+    "api-template": "https://raw.githubusercontent.com/VardyNg/Azure-POC-shopping-list-API/main/azuredeploy.json"
   },
   "resources": [
     // Storage Account
@@ -188,6 +254,7 @@
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', toLower(parameters('database_account_name')))]"
       ]
     },
+    // Database Container
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
       "apiVersion": "2022-05-15",
@@ -260,6 +327,65 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', toLower(parameters('database_account_name')), parameters('databaseName'))]"
+      ]
+    },
+    // API template
+    {
+      "name": "api",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('api-template')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "storageAccount_name": {"value": "[parameters('storageAccount_name')]"},
+          "appName": {"value": "[parameters('appName')]"},
+          "apimName": {"value": "[parameters('apimName')]"},
+          "tier": {"value": "[parameters('tier')]"},
+          "capacity": {"value": "[parameters('capacity')]"},
+          "adminEmail": {"value": "[parameters('adminEmail')]"},
+          "organizationName": {"value": "[parameters('organizationName')]"},
+          "tagsByResource": {"value": "[parameters('tagsByResource')]"},
+          "customProperties": {"value": "[parameters('customProperties')]"},
+          "identity": {"value": "[parameters('identity')]"}
+        }
+      }
+    },
+    // Static Website
+    {
+      "apiVersion": "2021-01-15",
+      "name": "[parameters('name')]",
+      "type": "Microsoft.Web/staticSites",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "properties": {
+        "repositoryUrl": "[parameters('repositoryUrl')]",
+        "branch": "[parameters('branch')]",
+        // "repositoryToken": "[parameters('repositoryToken')]",
+        "buildProperties": {
+          "appLocation": "[parameters('appLocation')]",
+          "apiLocation": "[parameters('apiLocation')]",
+          "appArtifactLocation": "[parameters('appArtifactLocation')]"
+        }
+      },
+      "sku": {
+        "Tier": "[parameters('sku')]",
+        "Name": "[parameters('skuCode')]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2021-01-15",
+          "name": "appsettings",
+          "type": "config",
+          "location": "[parameters('location')]",
+          "properties": "[parameters('appSettings')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/staticSites', parameters('name'))]"
+          ]
+        }
       ]
     }
   ]
