@@ -11,6 +11,7 @@ az group create \
 ### Deploy template to resource group
 ```sh
 az deployment group create \
+  --name azure-poc-shopping-list-rg \
   --resource-group azure-poc-shopping-list \
   --template-file azuredeploy.json \
   --parameter @storage.parameter.json @parameter.json @apigw.parameter.json @staticwebsite.parameter.json
@@ -21,5 +22,5 @@ az deployment group create \
 az deployment group delete \
   --resource-group azure-poc-shopping-list \
   --name azuredeploy \
-  --parameter @storage.parameter.json
+  --parameter @storage.parameter.json @parameter.json @apigw.parameter.json @staticwebsite.parameter.json
 ```
