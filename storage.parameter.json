@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastasia"
+    },
+    "storageAccount_name": {
+      "value": "pocshoppinglistsa"
+    },
+    "storageAccount_sku_name": {
+      "value": "Standard_LRS"
+    },
+    "storageAccount_access_tier": {
+      "value": "Cool"
+    },
+    "storageAccount_kind": {
+      "value": "StorageV2"
+    },
+    "storageContainer_name": {
+      "value": "storagecontainerfromarm"
+    },
+    "database_account_name": {
+      "value": "pocshoppinglistdba"
+    },
+    "maxStalenessPrefix": {
+      "value": 100000
+    },
+    "maxIntervalInSeconds": {
+      "value": 300
+    },
+    "defaultConsistencyLevel": {
+      "value": "Session"
+    },
+    "primaryRegion": {
+      "value": "eastasia"
+    },
+    "secondaryRegion": {
+      "value": "southeastasia"
+    },
+    "systemManagedFailover": {
+      "value": true
+    },
+    "databaseName": {
+      "value": "ShoppingList"
+    },
+    "containerName": {
+      "value": "ShoppingListContainer"
+    },
+    "autoscaleMaxThroughput": {
+      "value": 1000
+    }
+  }
+}
